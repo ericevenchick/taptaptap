@@ -12,9 +12,12 @@
 // the initial period of the beats (in timer ticks)
 #define INITIAL_PERIOD    100
 
+// the minimum time between button presses for debounce (in timer ticks)
+#define DEBOUNCE_TIME     35
+
 // pin mappings
 #define BUTTON_PIN  DDB0
-#define LED_PIN     DDB1
+#define LED_PIN     DDB4
 #define SPEAKER_PIN DDB2
 
 // macros to control LED
@@ -79,11 +82,11 @@ ISR(TIM0_COMPA_vect) {
     counter++;
     // check if beat period has been hit
     if (counter % period == 0) {
-	// only beat if a timeout from last button press has occured
-	if ((counter - last_press) > TEMPO_SET_TIMEOUT) {
-	    led_beat();
-	    speaker_beat();
-	}
+        // only beat if a timeout from last button press has occured
+        if ((counter - last_press) > TEMPO_SET_TIMEOUT) {
+            led_beat();
+            speaker_beat();
+        }
     }
 }
 
@@ -102,9 +105,9 @@ ISR(PCINT0_vect) {
     delta = counter - last_press;
 
     // ensure delta is > 5 for debouncing
-    if (delta > 5) {
-	// set the period in timer ticks to the time between the last two presses
-	period = delta;
+    if (delta > DEBOUNCE_TIME) {
+        // set the period in timer ticks to the time between the last two presses
+        period = delta;
     }
 
     // set the last pressed timestamp to the current counter value
